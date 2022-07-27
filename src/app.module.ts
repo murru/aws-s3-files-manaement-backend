@@ -6,7 +6,9 @@ import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
-import { S3Service } from './s3-service/s3.service';
+import { S3Service } from './services/s3-service/s3.service';
+import { UnsplashService } from './unsplash/unsplash.service';
+import { UnsplashModule } from './unsplash/unsplash.module';
 
 @Module({
   imports: [
@@ -14,9 +16,10 @@ import { S3Service } from './s3-service/s3.service';
     MongooseModule.forRoot(process.env.DB_URI),
     AuthModule,
     FilesModule,
-    UsersModule
+    UsersModule,
+    UnsplashModule
   ],
   controllers: [AppController],
-  providers: [AppService, S3Service],
+  providers: [AppService, S3Service, UnsplashService],
 })
 export class AppModule {}

@@ -14,10 +14,6 @@ export class FilesService {
     return createdFile;
   }
 
-  findAll() {
-    return `This action returns all files`;
-  }
-
   findOne(id: string) {
     return this.filesModule.findById(id).exec();
   }
@@ -33,13 +29,5 @@ export class FilesService {
       throw new NotFoundException();
     }
     return file;
-  }
-
-  update(id: number, updateFileDto: UpdateFileDto) {
-    return `This action updates a #${id} file`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} file`;
   }
 }

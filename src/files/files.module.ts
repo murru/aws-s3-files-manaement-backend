@@ -3,7 +3,7 @@ import { FilesService } from './files.service';
 import { FilesController } from './files.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { File, FileSchema } from './schema/file.schema';
-import { S3Service } from 'src/s3-service/s3.service';
+import { S3Service } from 'src/services/s3-service/s3.service';
 
 @Module({
   imports: [

@@ -1,13 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, StreamableFile, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, UseInterceptors, UploadedFile, Res, UseGuards } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { NotEmptyFilePipe } from 'src/not-empty-file.pipe';
-import { S3Service } from 'src/s3-service/s3.service';
+import { S3Service } from 'src/services/s3-service/s3.service';
 import { Response } from 'express';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @ApiTags('files')
 @Controller('files')
 export class FilesController {
@@ -16,6 +19,7 @@ export class FilesController {
     private readonly s3Service: S3Service
   ) {}
 
+  /* Upload any file to S3 */
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -41,7 +45,8 @@ export class FilesController {
 
     return this.filesService.create(newDocument);
   }
-
+  
+  /* Download a file within the session of the user */
   @Get('download/:id')
   async download(@Param('id') id: string, @Res() res: Response) {
     const file = await this.filesService.findOne(id);
@@ -57,28 +62,9 @@ export class FilesController {
     return urlToDownload;
   }
 
+  /* Update file name in database */
   @Patch('update-file-name/:id')
   async updateName(@Param('id') id: string, @Body() updateFileDto: UpdateFileDto) {
     return this.filesService.updateFileName(id, updateFileDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.filesService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.filesService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFileDto: UpdateFileDto) {
-    return this.filesService.update(+id, updateFileDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.filesService.remove(+id);
   }
 }

@@ -9,7 +9,8 @@ async function bootstrap() {
 
   // Swagger setup
   const config = new DocumentBuilder()
-    .setTitle('Aluxion backend test API documentation')
+    .addBearerAuth()
+    .setTitle('AWS S3 Files Management API documentation')
     .setDescription('Endpoints to test the backend API.')
     .setVersion('1.0')
     .addTag('auth')

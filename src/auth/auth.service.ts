@@ -1,26 +1,38 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { HttpException, Injectable } from '@nestjs/common';
+import { LoginAuthDto } from './dto/login-auth.dto';
+import { RegisterAuthDto } from './dto/register-auth.dto';
+import { hash, compare } from 'bcrypt';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from 'src/users/schema/user.schema';
+import { Model } from 'mongoose';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private jwtService: JwtService
+  ) {}
+
+  async create(userObject: RegisterAuthDto) {
+    const { password } = userObject;
+    const plainToHash = await hash(password, 10);
+    userObject = { ...userObject, password: plainToHash };
+    return this.userModel.create(userObject);
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async login(loginAuthDto: LoginAuthDto) {
+    const { email, password } = loginAuthDto;
+    const user = await this.userModel.findOne({ email });
+    if (!user) throw new HttpException('USER_NOT_FOUND', 404);
+    const checkPsswd = await compare(password, user.password);
+    if (!checkPsswd) throw new HttpException('FORBIDDEN', 403);
+    const payload = { id: user._id.toString(), name: user.fullname };
+    const token = this.jwtService.sign(payload);
+    const data = {
+      user,
+      token
+    };
+    return data;
   }
 }

@@ -35,13 +35,6 @@ export class S3Service {
     async generateLink(key: string) {
       const s3 = new S3(); 
       const AWS_S3_BUCKET = process.env.AWS_S3_BUCKET;
-      /* s3.getSignedUrl('getObject', {
-        Bucket: AWS_S3_BUCKET,
-        Key: key,
-        Expires: 60
-      }, function(err, url) {
-          return url; 
-      }); */
       const signedUrl = s3.getSignedUrl("getObject", {
         Key: key,
         Bucket: AWS_S3_BUCKET,
